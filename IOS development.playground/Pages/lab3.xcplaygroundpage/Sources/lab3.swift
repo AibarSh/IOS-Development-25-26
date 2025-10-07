@@ -1,27 +1,27 @@
 import Cocoa
 
-struct Product{
-    let id: String
-    let name: String
-    let price: Double
-    let category: Category
-    let description: String
+public struct Product{
+    public let id: String
+    public let name: String
+    public let price: Double
+    public let category: Category
+    public let description: String
     
-    enum Category: String{
+    public enum Category: String{
         case electronics
         case books
         case clothing
         case food
     }
     
-    var displayPrice: String{
+    public var displayPrice: String{
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
         numberFormatter.locale = Locale.current
         return numberFormatter.string(from: NSNumber(value: price))!
     }
     
-    init?(id: String, name: String, price: Double, category: Category, description: String) {
+    public init?(id: String, name: String, price: Double, category: Category, description: String) {
         guard price > 0 else {return nil}
         self.id = id
         self.name = name
@@ -31,41 +31,41 @@ struct Product{
     }
 }
 
-struct CartItem{
-    let product: Product
-    var quantity: Int
+public struct CartItem{
+    public let product: Product
+    public private(set) var quantity: Int
     
-    var subtotal: Double{
+    public var subtotal: Double{
         return product.price * Double(quantity)
     }
     
-    init?(product: Product, quantity: Int) {
+    public init?(product: Product, quantity: Int) {
         guard quantity > 0 else {return nil}
         self.product = product
         self.quantity = quantity
     }
     
-    mutating func updateQuantity(_ newQuantity: Int){
+    public mutating func updateQuantity(_ newQuantity: Int){
         guard newQuantity > 0 else {return}
         self.quantity = newQuantity
     }
     
-    mutating func increaseQuantity(by amount: Int){
+    public mutating func increaseQuantity(by amount: Int){
         guard amount > 0 else {return}
         self.quantity += amount
     }
 }
 
-class ShoppingCart{
-    private(set) var items: [CartItem] = []
-    var discountCode: String? = nil
+public class ShoppingCart{
+    public private(set) var items: [CartItem] = []
+    public var discountCode: String? = nil
     
-    init() {
+    public init() {
         self.items = []
         self.discountCode = nil
     }
     
-    func addItem(product: Product, quantity: Int = 1){
+    public func addItem(product: Product, quantity: Int = 1){
         if let index = items.firstIndex(where: {$0.product.id == product.id}){
             items[index].increaseQuantity(by: quantity)
         }
@@ -75,11 +75,11 @@ class ShoppingCart{
         }
     }
     
-    func removeItem(productID: String){
+    public func removeItem(productID: String){
         items.removeAll { $0.product.id == productID }
     }
     
-    func updateItemQuantity(productID: String, quantity: Int){
+    public func updateItemQuantity(productID: String, quantity: Int){
         if let index = items.firstIndex(where: {$0.product.id == productID}){
             if quantity > 0{
                 items[index].updateQuantity(quantity)
@@ -90,11 +90,11 @@ class ShoppingCart{
         }
     }
     
-    func clearCart(){
+    public func clearCart(){
         items.removeAll()
     }
     
-    var subtotal: Double{
+    public var subtotal: Double{
         var sum: Double = 0;
         for item in items{
             sum += item.product.price * Double(item.quantity)
@@ -102,7 +102,7 @@ class ShoppingCart{
         return sum
     }
     
-    var discountAmmount: Double{
+    public var discountAmmount: Double{
         if discountCode == "Save10%"{
             return 0.9
         }
@@ -118,11 +118,11 @@ class ShoppingCart{
         else {return 1.0}
     }
     
-    var total: Double{
+    public var total: Double{
         return subtotal * discountAmmount
     }
     
-    var itemCount: Int{
+    public var itemCount: Int{
         var counter: Int = 0;
         for item in items{
             counter += item.quantity
@@ -130,7 +130,7 @@ class ShoppingCart{
         return counter
     }
     
-    var isEmpty: Bool{
+    public var isEmpty: Bool{
         if items.isEmpty{
             return true
         }
@@ -140,27 +140,34 @@ class ShoppingCart{
     }
 }
 
-struct Address{
-    let street: String
-    let city: String
-    let zipCode: String
-    let country: String
+public struct Address{
+    public let street: String
+    public let city: String
+    public let zipCode: String
+    public let country: String
     
-    var formattedAddress: String{
+    public init(street: String, city: String, zipCode: String, country: String) {
+        self.street = street
+        self.city = city
+        self.zipCode = zipCode
+        self.country = country
+    }
+    
+    public var formattedAddress: String{
         return "Address: \(country), \(city), \(zipCode), \(street)"
     }
 }
 
-struct Order{
-    let orderId: String
-    let items: [CartItem]
-    let subtotal: Double
-    let discountAmount: Double
-    let total: Double
-    let timestamp: Date
-    let shippingAddress: Address
+public struct Order{
+    public let orderId: String
+    public let items: [CartItem]
+    public let subtotal: Double
+    public let discountAmount: Double
+    public let total: Double
+    public let timestamp: Date
+    public let shippingAddress: Address
     
-    init(from cart: ShoppingCart, shippingAddress: Address) {
+    public init(from cart: ShoppingCart, shippingAddress: Address) {
         self.orderId = UUID().uuidString
         self.items = cart.items
         self.subtotal = cart.subtotal
@@ -170,7 +177,7 @@ struct Order{
         self.shippingAddress = shippingAddress
     }
     
-    var itemCount: Int {
+    public var itemCount: Int {
         var count: Int = 0
         for item in items {
             count += item.quantity
